@@ -101,6 +101,14 @@ print(input_tokens)
 # )
 # print(generated_sequencess)
 
+"""
+输入input_ids作为起始。
+最多生成12个新token。
+使用5个beam进行搜索。
+采用温度参数1.0控制生成的随机性。
+未启用top-k和nucleus采样。
+采用beam search方法生成序列。
+"""
 
 # beam_search
 generated_sequencess = model.generate(
