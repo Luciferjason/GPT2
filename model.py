@@ -351,13 +351,16 @@ class GPT(nn.Module):
         Take a conditioning sequence of indices idx (LongTensor of shape (b,t)) and complete
         the sequence max_new_tokens times, feeding the predictions back into the model each time.
         Most likely you'll want to make sure to be in model.eval() mode of operation for this.
+        取索引 idx （shape： （b，t）） 的 LongTensor 的条件序列，并完成序列 max_new_tokens 次，每次都将预测反馈给模型。最有可能的是，您需要确保处于 model.eval（） 操作模式。
         """
 
         #####################
         # top-k sampling
         if method == "top_k_sampling":
+
+            # Top - k Sampling：选择模型输出中最可能的前k个词元，并从中随机选取一个继续生成。
             for _ in range(max_new_tokens):
-                # if the sequence context is growing too long we must crop it at block_size
+                # if the sequence context is growing too long we must crop it at block_size；如果序列上下文增长得太长，我们必须在 block_size 处裁剪它
                 idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
                 # forward the model to get the logits for the index in the sequence
                 logits = self(idx_cond).logits
@@ -379,7 +382,7 @@ class GPT(nn.Module):
         #####################
         # nucleus sampling
         elif method == "nucleus_sampling":
-
+            # Nucleus Sampling：类似Top-k，但选择累积概率达到阈值p_nucleus的最小词元集合，再从中随机选取继续生成。
             for _ in range(max_new_tokens):
                 # if the sequence context is growing too long we must crop it at block_size
                 idx_cond = idx if idx.size(1) <= self.config.block_size else idx[:, -self.config.block_size:]
@@ -408,7 +411,7 @@ class GPT(nn.Module):
         ################################
         # beam search
         elif method == "beam_search":
-
+            # Beam Search：采用beam search算法生成文本，维护多个候选分支（beams），并最终选择得分最高的分支作为输出。通过迭代更新每个分支及其得分来完成生成过程。
             batch_size = idx.shape[0]
             seq_len = idx.shape[1]
             # 定义scores向量，保存累加的log_probs
